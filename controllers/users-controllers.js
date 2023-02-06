@@ -20,7 +20,7 @@ const getUser = async (req, res, next) => {
   let email = req.user.email;
   let user;
   try {
-    user = await User.find({ email });
+    user = await User.findOne({ email });
   } catch (err) {
     throw err;
   }
