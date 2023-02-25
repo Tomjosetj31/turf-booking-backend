@@ -13,7 +13,7 @@ const bookrouter = express.Router();
 //const bookingController = require("../controllers/booking-controllers");
 
 bookrouter.get("/bookings", getAllBookings);
-bookrouter.post("/add", addBooking);
+bookrouter.post("/add", verify, addBooking);
 bookrouter.put("/update/:id", updateBooking);
 bookrouter.get("/:id", getById);
 bookrouter.delete("/:id", deleteBooking);

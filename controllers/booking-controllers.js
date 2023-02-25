@@ -16,14 +16,15 @@ const getAllBookings = async (req, res, next) => {
 };
 
 const addBooking = async (req, res, next) => {
-  const { user, bookingDate, start_time, end_time } = req.body;
-  let exisitingUser;
+  const email = req.user.email;
+  const { bookingDate, start_time, end_time } = req.body;
+  let user;
   try {
-    exisitingUser = await User.findById(user);
+    user = await User.findOne({ email });
   } catch (err) {
     return console.log(err);
   }
-  if (!exisitingUser) {
+  if (!user) {
     return res.status(400).json({ message: "unable to find user" });
   }
   let booking = new Booking({
@@ -36,8 +37,8 @@ const addBooking = async (req, res, next) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     await booking.save({ session });
-    exisitingUser.bookings.push(booking);
-    await exisitingUser.save({ session });
+    user.bookings.push(booking);
+    await user.save({ session });
     await session.commitTransaction();
   } catch (err) {
     console.log(err);
