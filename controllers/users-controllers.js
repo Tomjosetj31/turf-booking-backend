@@ -15,7 +15,6 @@ const getAllUser = async (req, res, next) => {
   }
   return res.status(200).json({ users });
 };
-
 const getUser = async (req, res, next) => {
   let email = req.user.email;
   let user;
@@ -97,37 +96,6 @@ const login = async (req, res, next) => {
   );
   return res.status(200).json({ token: accessToken });
 };
-/*
-const updateUser = async(req,res,next) =>
-{
-   const id = req.params.id; 
-   const {name,age,gender,phone,password} = req.body
-   let user;
-   try{
-      user = await User.findByIdAndUpdate(id,
-         {
-            name,
-            age,
-            gender,
-            phone,
-            password
-         });
-
-         user = await user.save();
-      }catch (err){
-      console.log.apply(err);
-      throw err;
-   }
-   if(!user){
-      return res.status(404).json({message:"Unable to update by this Id"}); 
-   } 
-   return res.status(201).json({user});
-}
-exports.deleteUser = deleteUser;
-exports.updateUser = updateUser;
-exports.getAllUser = getAllUser;
-exports.getById = getById;*/
-
 const deleteUser = async (req, res, next) => {
   let email = req.user.email;
   let user;
@@ -141,10 +109,53 @@ const deleteUser = async (req, res, next) => {
   }
   return res.status(201).json({ message: "User Deleted Successfully" });
 };
+const updateUser = async (req, res, next) => {
+  const { name, age, phone } = req.body;
+  const email = req.user.email;
+  try {
+    const user = await User.findOne({email});
+    const userId = user._id;
+    const updateduser = await User.findByIdAndUpdate(
+      userId,
+      { name, age, phone},
+      { new: true }
+    );
+    if (!updateduser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({ updateduser });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unable to update user" });
+  }
+};
 
+const updatePassword = async (req, res, next) => {
+  const { password } = req.body;
+  const email = req.user.email;
+  try {
+    const user = await User.findOne({email});
+    const userId = user._id;
+    const hashedPassword = bcrypt.hashSync(password);
+    const updatedPassword = await User.findByIdAndUpdate(
+      userId,
+      { password: hashedPassword},
+      { new: true }
+    );
+    if (!updatedPassword) {
+      return res.status(404).json({ message: "Unable to update password" });
+    }
+    return res.status(200).json({ updatedPassword });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unable to update password" });
+  }
+};
 module.exports = {
   signup,
   login,
   getUser,
   deleteUser,
+  updateUser,
+  updatePassword,
 };
