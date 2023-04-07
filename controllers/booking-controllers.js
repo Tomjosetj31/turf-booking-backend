@@ -17,7 +17,7 @@ const getAllBookings = async (req, res, next) => {
 
 const addBooking = async (req, res, next) => {
   const email = req.user.email;
-  const { bookingDate, start_time, end_time, slot } = req.body;
+  const { bookingDate, start_time, end_time } = req.body;
   let user;
   try {
     user = await User.findOne({ email });
@@ -32,7 +32,6 @@ const addBooking = async (req, res, next) => {
     bookingDate,
     start_time,
     end_time,
-    slot,
   });
   try {
     const session = await mongoose.startSession();
@@ -111,31 +110,6 @@ const getUserBookings = async (req, res, next) => {
   }
   return res.status(200).json({ bookings: userBookings });
 };
-
-const getUserBookingsByDate = async (req, res, next) => {
-  let dateTime = req.params.date;
-  let date = dateTime.split("T")[0];
-  const morning = date + "T00:00:00.000Z";
-  const evening = date + "T23:59:59.000Z";
-  const email = req.user.email;
-  let userBookings;
-  try {
-    const user = await User.findOne({ email });
-    userBookings = await Booking.find({
-      user: user._id,
-      bookingDate: {
-        $gte: new Date(morning),
-        $lt: new Date(evening),
-      },
-    });
-  } catch (err) {
-    return console.log(err);
-  }
-  if (!userBookings) {
-    return res.status(404).json({ message: "No bookings found" });
-  }
-  return res.status(200).json({ bookings: userBookings });
-};
 module.exports = {
   getUserBookings,
   addBooking,
@@ -143,5 +117,4 @@ module.exports = {
   updateBooking,
   getById,
   deleteBooking,
-  getUserBookingsByDate,
 };
