@@ -93,7 +93,7 @@ const deleteBooking = async (req, res, next) => {
     return console.log(err);
   }
   if (!booking) {
-    return res.ststus(500).json({ message: "Unable to delete" });
+    return res.status(500).json({ message: "Unable to delete" });
   }
   return res.status(200).json({ message: "Booking deleted successfully" });
 };
@@ -119,10 +119,8 @@ const getUserBookingsByDate = async (req, res, next) => {
   const evening = date + "T23:59:59.000Z";
   const email = req.user.email;
   let userBookings;
-  try {
-    const user = await User.findOne({ email });
+    try {
     userBookings = await Booking.find({
-      user: user._id,
       bookingDate: {
         $gte: new Date(morning),
         $lt: new Date(evening),
